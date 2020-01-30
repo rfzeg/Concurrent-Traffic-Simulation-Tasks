@@ -21,9 +21,12 @@ TrafficObject::TrafficObject()
 {
     _type = ObjectType::noObject;
     _id = _idCnt++;
-}
-
+}   
 TrafficObject::~TrafficObject()
 {
     // Task L1.1 : Set up a thread barrier that ensures that all the thread objects in the member vector _threads are joined.
+    // std::for_each(_threads.begin(),_threads.end(), [](std::thread &t){ t.join(); });
+    for (auto &t : _threads){
+        t.join();
+    }
 }
