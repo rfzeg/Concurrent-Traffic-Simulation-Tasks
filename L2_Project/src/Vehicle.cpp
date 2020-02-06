@@ -74,10 +74,19 @@ void Vehicle::drive()
             // check wether halting position in front of destination has been reached
             if (completion >= 0.9 && !hasEnteredIntersection)
             {
-                // Task L2.1 : Start up a task using std::async which takes a reference to the method Intersection::addVehicleToQueue, 
-                // the object _currDestination and a shared pointer to this using the get_shared_this() function. 
+                // Start up a task using std::async which takes a reference to the method Intersection::addVehicleToQueue,
+                // the object _currDestination and a shared pointer to this using the get_shared_this() function.
+                std::future<void> ftr = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
                 // Then, wait for the data to be available before proceeding to slow down.
-
+                // retrieve result within try-catch-block
+                try
+                {
+                    ftr.get();
+                }
+                catch (std::runtime_error e)
+                {
+                    std::cout << e.what() << std::endl;
+                }
                 // slow down and set intersection flag
                 _speed /= 10.0;
                 hasEnteredIntersection = true;
