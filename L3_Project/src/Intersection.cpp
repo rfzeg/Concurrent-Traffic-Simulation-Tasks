@@ -3,6 +3,7 @@
 #include <chrono>
 #include <future>
 #include <random>
+#include <mutex>
 
 #include "Street.h"
 #include "Intersection.h"
@@ -10,22 +11,25 @@
 
 /* Implementation of class "WaitingVehicles" */
 
-// L3.1 : Safeguard all accesses to the private members _vehicles and _promises with an appropriate locking mechanism, 
+// Safeguard all accesses to the private members _vehicles and _promises with an appropriate locking mechanism, 
 // that will not cause a deadlock situation where access to the resources is accidentally blocked.
 
 int WaitingVehicles::getSize()
 {
+    std::lock_guard<std::mutex> lck(_mtx);
     return _vehicles.size();
-}
+} // auto unlock lock_guard (RAII)
 
 void WaitingVehicles::pushBack(std::shared_ptr<Vehicle> vehicle, std::promise<void> &&promise)
 {
+    std::lock_guard<std::mutex> lck(_mtx);
     _vehicles.push_back(vehicle);
     _promises.push_back(std::move(promise));
-}
+} // auto unlock lock_guard (RAII))
 
 void WaitingVehicles::permitEntryToFirstInQueue()
 {
+    std::lock_guard<std::mutex> lck(_mtx);
     // get entries from the front of both queues
     auto firstPromise = _promises.begin();
     auto firstVehicle = _vehicles.begin();
@@ -36,7 +40,7 @@ void WaitingVehicles::permitEntryToFirstInQueue()
     // remove front elements from both queues
     _vehicles.erase(firstVehicle);
     _promises.erase(firstPromise);
-}
+} // auto unlock lock_guard (RAII)
 
 /* Implementation of class "Intersection" */
 
